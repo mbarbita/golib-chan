@@ -10,6 +10,7 @@ func main() {
 
 	r2 := router.NewRouter(0, "some router", "kitchen")
 	r2.OutMap[0] = make(chan interface{})
+	r2.OutMap[1] = make(chan interface{})
 	fmt.Println(r2)
 
 	go func() {
@@ -19,6 +20,7 @@ func main() {
 	}()
 
 	router.PrintRouter(r2)
+
 	ifc := <-r2.OutMap[0]
 	fmt.Printf("reading from chan: val: %v, type: %T\n", ifc, ifc)
 
