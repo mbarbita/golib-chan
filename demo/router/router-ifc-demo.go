@@ -7,23 +7,24 @@ import (
 )
 
 func main() {
-
-	r2 := router.NewRouter(0, "some router", "kitchen")
-	r2.OutMap[0] = make(chan interface{})
-	r2.OutMap[1] = make(chan interface{})
-	fmt.Println(r2)
+	// inCh := make(chan interface{})
+	// r1 := router.NewRouter(0, inCh)
+	r1 := router.NewRouter(0, make(chan interface{}))
+	// r1.OutMap[0] = make(chan interface{})
+	r1.ModOut(0, make(chan interface{}))
+	// r1.OutMap[1] = make(chan interface{})
+	r1.ModOut(1, make(chan interface{}))
+	router.PrintRouter(r1)
 
 	go func() {
 		fmt.Println("sending data:")
-		r2.OutMap[0] <- 123
-		r2.OutMap[0] <- "blabla"
+		r1.OutMap[0] <- 123
+		r1.OutMap[0] <- "blabla"
 	}()
 
-	router.PrintRouter(r2)
-
-	ifc := <-r2.OutMap[0]
+	ifc := <-r1.OutMap[0]
 	fmt.Printf("reading from chan: val: %v, type: %T\n", ifc, ifc)
 
-	ifc = <-r2.OutMap[0]
+	ifc = <-r1.OutMap[0]
 	fmt.Printf("reading from chan: val: %v, type: %T\n", ifc, ifc)
 }

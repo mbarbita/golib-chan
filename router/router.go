@@ -2,64 +2,60 @@ package router
 
 import (
 	"fmt"
+	"log"
 	"sync"
 )
 
 // Router ...
 type Router struct {
 	ID      int //address
-	Name    string
-	Desc    string
 	Running bool
 	In      chan interface{}
 	OutMap  map[int]chan interface{} // out id = chan
 }
 
 // NewRouter ...
-func NewRouter(id int, name, desc string) *Router {
+func NewRouter(id int, inCh chan interface{}) *Router {
 	return &Router{
-		id, //id
-		// fmt.Sprintf("%v %05v", kind, id), //name
-		name,
-		desc, //desc
-		false,
-		make(chan interface{}),         //in
+		id,                             //id
+		false,                          // running
+		inCh,                           //in
 		make(map[int]chan interface{}), //out
 	}
 }
 
 // PrintRouter ...
 func PrintRouter(r *Router) {
+	fmt.Println("Router:")
 	fmt.Println("id     :", r.ID)
-	fmt.Println("name   :", r.Name)
-	fmt.Println("desc   :", r.Desc)
 	fmt.Println("running:", r.Running)
-	fmt.Println("in     :", r.In)
+	fmt.Println("in chan:", r.In)
 	for k, v := range r.OutMap {
-		fmt.Println("out id:", k, "out chan:", v)
+		fmt.Printf("out id : %v, chan: %v\n", k, v)
 	}
+	fmt.Println()
 }
 
 // ModifyOut ...
-func (r *Router) ModifyOut(cmd int, id int, ch chan interface{}) {
+func (r *Router) ModOut(outID int, ch chan interface{}) {
 
 	mutex := &sync.Mutex{}
 	mutex.Lock()
 	defer mutex.Unlock()
+	r.OutMap[outID] = ch
+}
 
-	switch cmd {
-	case 1: // Add or modify destination
-		r.OutMap[id] = ch
-	// case 2:
-	// 	r.OutMap[id] = ch
-	case 2: // Delete destination
-		delete(r.OutMap, id)
-		close(ch)
-	}
+func (r *Router) DelOut(outID int, ch chan interface{}) {
+
+	mutex := &sync.Mutex{}
+	mutex.Lock()
+	defer mutex.Unlock()
+	delete(r.OutMap, outID)
+	close(ch)
 }
 
 // ModifyIn ...
-func (r *Router) ModifyIn(ch chan interface{}) {
+func (r *Router) ModIn(ch chan interface{}) {
 
 	mutex := &sync.Mutex{}
 	mutex.Lock()
@@ -69,7 +65,7 @@ func (r *Router) ModifyIn(ch chan interface{}) {
 }
 
 // ChangeID ...
-func (r *Router) ChangeID(id int) {
+func (r *Router) ModID(id int) {
 
 	mutex := &sync.Mutex{}
 	mutex.Lock()
@@ -84,16 +80,29 @@ func (r *Router) Start() {
 		r.Running = true
 		for {
 			if !r.Running {
-				return
+				// return
+				break
 			}
+
 			msg := <-r.In
 			// loop trough client map and send the message
 			for _, v := range r.OutMap {
-				v <- msg
+				// v <- msg
+
+				select {
+				case v <- msg:
+				// sent msg down chan and didn't block
+				// case <-time.After(3 * time.Second):
+				// 	log.Printf("Send timeout to chan: %v\n", v)
+				default:
+					// sent nothing and would have blocked
+					log.Printf("could not send to chan: %v\n", v)
+				}
+
 			}
-			// log.Printf("sent message to %d dst", len(bcr.dst))
-			// }
 		}
+		log.Printf("break: %v\n", r.ID)
+
 	}()
 }
 
