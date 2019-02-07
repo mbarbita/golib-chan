@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	wch := make(chan bool)
 
 	r1 := router.NewRouter(0, make(chan interface{}))
 	r1.ModOut(0, make(chan interface{}, 1))
@@ -31,18 +32,18 @@ func main() {
 		for i := 0; i < 5; i++ {
 			fmt.Println("sending data:")
 			r1.In <- 123
-			time.Sleep(time.Second)
+			// time.Sleep(100 * time.Millisecond)
 
 			r1.In <- "blabla"
-			time.Sleep(time.Second)
+			// time.Sleep(100 * time.Millisecond)
 		}
+		time.Sleep(1000 * time.Millisecond)
+		wch <- true
+
 		// e1.Stop()
 		// r1.Stop()
 	}()
 
-	// select {}
-	// wch := make(chan bool)
-	// <-wch
-	time.Sleep(10 * time.Second)
+	<-wch
 
 }

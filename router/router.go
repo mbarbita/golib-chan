@@ -27,6 +27,7 @@ func NewRouter(id int, inCh chan interface{}) *Router {
 // PrintRouter ...
 func PrintRouter(r *Router) {
 	fmt.Println("Router:")
+	// fmt.Printf("%-10v:\n", "Router")
 	fmt.Println("id     :", r.ID)
 	fmt.Println("running:", r.Running)
 	fmt.Println("in chan:", r.In)
@@ -89,6 +90,11 @@ func (r *Router) Start() {
 			for _, v := range r.OutMap {
 				// v <- msg
 
+				// go func() {
+				//
+				// 	}(
+				// )
+
 				select {
 				case v <- msg:
 				// sent msg down chan and didn't block
@@ -96,7 +102,7 @@ func (r *Router) Start() {
 				// 	log.Printf("Send timeout to chan: %v\n", v)
 				default:
 					// sent nothing and would have blocked
-					log.Printf("could not send to chan: %v\n", v)
+					log.Printf("router %v could not send to chan: %v\n", r.ID, v)
 				}
 
 			}
