@@ -1,3 +1,3 @@
-[![Build Status](https://travis-ci.org/mbarbita/golib-chan.svg?branch=master)](https://travis-ci.org/mbarbita/golib-chan)
+[![Build Status](https://travis-ci.org/mbarbita/golib-controller.svg?branch=master)](https://travis-ci.org/mbarbita/golib-controller)
 
-# golib-chan
+# golib-controller
