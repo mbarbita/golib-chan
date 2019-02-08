@@ -10,17 +10,18 @@ import (
 type Router struct {
 	ID      int //address
 	Running bool
-	In      chan interface{}
-	OutMap  map[int]chan interface{} // out id = chan
+	sync.Mutex
+	In     chan interface{}
+	OutMap map[int]chan interface{} // out id = chan
 }
 
 // NewRouter ...
 func NewRouter(id int, inCh chan interface{}) *Router {
 	return &Router{
-		id,                             //id
-		false,                          // running
-		inCh,                           //in
-		make(map[int]chan interface{}), //out
+		ID:      id,                             //id
+		Running: false,                          // running
+		In:      inCh,                           //in
+		OutMap:  make(map[int]chan interface{}), //out
 	}
 }
 
@@ -39,38 +40,30 @@ func PrintRouter(r *Router) {
 
 // ModifyOut ...
 func (r *Router) ModOut(outID int, ch chan interface{}) {
-
-	mutex := &sync.Mutex{}
-	mutex.Lock()
-	defer mutex.Unlock()
+	r.Lock()
+	defer r.Unlock()
 	r.OutMap[outID] = ch
 }
 
 func (r *Router) DelOut(outID int, ch chan interface{}) {
-
-	mutex := &sync.Mutex{}
-	mutex.Lock()
-	defer mutex.Unlock()
+	r.Lock()
+	defer r.Unlock()
 	delete(r.OutMap, outID)
 	close(ch)
 }
 
 // ModifyIn ...
 func (r *Router) ModIn(ch chan interface{}) {
-
-	mutex := &sync.Mutex{}
-	mutex.Lock()
-	defer mutex.Unlock()
+	r.Lock()
+	defer r.Unlock()
 	r.In = ch
 	close(r.In)
 }
 
 // ChangeID ...
 func (r *Router) ModID(id int) {
-
-	mutex := &sync.Mutex{}
-	mutex.Lock()
-	defer mutex.Unlock()
+	r.Lock()
+	defer r.Unlock()
 	r.ID = id
 
 }
@@ -78,43 +71,32 @@ func (r *Router) ModID(id int) {
 // Start ...
 func (r *Router) Start() {
 	go func() {
+		r.Lock()
 		r.Running = true
+		r.Unlock()
 		for {
 			if !r.Running {
 				// return
 				break
 			}
-
 			msg := <-r.In
 			// loop trough client map and send the message
 			for _, v := range r.OutMap {
-				// v <- msg
-
-				// go func() {
-				//
-				// 	}(
-				// )
-
 				select {
 				case v <- msg:
-				// sent msg down chan and didn't block
-				// case <-time.After(3 * time.Second):
-				// 	log.Printf("Send timeout to chan: %v\n", v)
 				default:
-					// sent nothing and would have blocked
 					log.Printf("router %v could not send to chan: %v\n", r.ID, v)
 				}
-
 			}
 		}
-		log.Printf("break: %v\n", r.ID)
-
+		// break
+		log.Printf("router %v stopped.\n", r.ID)
 	}()
 }
 
 // Stop ...
 func (r *Router) Stop() {
-
+	r.Lock()
 	r.Running = false
-
+	r.Unlock()
 }
