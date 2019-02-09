@@ -1,6 +1,8 @@
-package components
+package controller
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Echo struct {
 	ID      int

@@ -4,22 +4,21 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mbarbita/golib-chan/comp"
-	"github.com/mbarbita/golib-chan/router"
+	ccore "github.com/mbarbita/golib-controller/core"
 )
 
 func main() {
 	wch := make(chan bool)
 
-	r1 := router.NewRouter(0, make(chan interface{}))
+	r1 := ccore.NewRouter(0, make(chan interface{}))
 	r1.ModOut(0, make(chan interface{}, 1))
 	r1.ModOut(1, make(chan interface{}, 1))
 
-	e1 := comp.NewEcho(0, r1.OutMap[0])
-	e2 := comp.NewEcho(1, r1.OutMap[1])
-	router.PrintRouter(r1)
-	comp.PrintComp(e1)
-	comp.PrintComp(e2)
+	e1 := ccore.NewEcho(0, r1.OutMap[0])
+	e2 := ccore.NewEcho(1, r1.OutMap[1])
+	ccore.PrintRouter(r1)
+	ccore.PrintComp(e1)
+	ccore.PrintComp(e2)
 
 	r1.Start()
 

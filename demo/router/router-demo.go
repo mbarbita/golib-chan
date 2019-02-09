@@ -3,18 +3,18 @@ package main
 import (
 	"fmt"
 
-	"github.com/mbarbita/golib-chan/router"
+	ccore "github.com/mbarbita/golib-controller/core"
 )
 
 func main() {
 	// inCh := make(chan interface{})
-	// r1 := router.NewRouter(0, inCh)
-	r1 := router.NewRouter(0, make(chan interface{}))
+	// r1 := ccore.NewRouter(0, inCh)
+	r1 := ccore.NewRouter(0, make(chan interface{}))
 	// r1.OutMap[0] = make(chan interface{})
 	r1.ModOut(0, make(chan interface{}))
 	// r1.OutMap[1] = make(chan interface{})
 	r1.ModOut(1, make(chan interface{}))
-	router.PrintRouter(r1)
+	ccore.PrintRouter(r1)
 
 	go func() {
 		fmt.Println("sending data:")
