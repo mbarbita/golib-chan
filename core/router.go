@@ -29,9 +29,9 @@ func NewRouter(id int, inCh chan interface{}) *Router {
 func PrintRouter(r *Router) {
 	fmt.Println("Router:")
 	// fmt.Printf("%-10v:\n", "Router")
-	fmt.Println("id     :", r.ID)
-	fmt.Println("running:", r.Running)
-	fmt.Println("in chan:", r.In)
+	fmt.Println("Router id:", r.ID)
+	fmt.Println("running  :", r.Running)
+	fmt.Println("in chan  :", r.In)
 	for k, v := range r.OutMap {
 		fmt.Printf("out id : %v, chan: %v\n", k, v)
 	}
@@ -81,11 +81,12 @@ func (r *Router) Start() {
 			}
 			msg := <-r.In
 			// loop trough client map and send the message
-			for _, v := range r.OutMap {
+			for k, v := range r.OutMap {
 				select {
 				case v <- msg:
 				default:
-					log.Printf("router %v could not send to chan: %v\n", r.ID, v)
+					log.Printf("router %v could not send to chan id: %v chan:%v\n",
+						r.ID, k, v)
 				}
 			}
 		}

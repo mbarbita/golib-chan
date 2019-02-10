@@ -7,58 +7,80 @@ import (
 )
 
 type Echo struct {
-	ID      int
-	Running bool
-	Cmd     chan int8
+	ID          int
+	Initialised bool
+	Running     bool
+	Cmd         chan int8
 	sync.Mutex
 	In chan interface{}
 }
 
 func NewEcho(id int, cmd chan int8, inCh chan interface{}) *Echo {
 	return &Echo{
-		ID:      id,
-		Running: false,
-		Cmd:     cmd,
-		In:      inCh,
+		ID:          id,
+		Initialised: false,
+		Running:     false,
+		Cmd:         cmd,
+		In:          inCh,
 	}
 }
 
 func PrintComp(e *Echo) {
 	fmt.Println("Echo id:", e.ID)
+	fmt.Println("Initialised:", e.Initialised)
 	fmt.Println("running:", e.Running)
 	fmt.Println("cmd chan:", e.Cmd)
 	fmt.Println("in chan:", e.In)
 	fmt.Println()
 }
 
-func (e *Echo) Start() {
+func (e *Echo) Init() {
 	go func() {
+		e.Initialised = true
 		for {
+		loop:
 			cmd := <-e.Cmd
-			if cmd == 1 {
+			if cmd == RUN {
 				e.Lock()
 				e.Running = true
 				e.Unlock()
 			}
 
-			if cmd == 0 {
+			if cmd == STOP {
 				e.Lock()
 				e.Running = false
 				e.Unlock()
-				return
+				goto loop
 			}
+			// if cmd == 0 {
+			// 	e.Lock()
+			// 	e.Running = false
+			// 	e.Unlock()
+			// 	return
+			// }
 
 			for {
-				if !e.Running {
-					break
-				}
+				// 	if !e.Running {
+				// 		break
+				// 	}
 				select {
 				case cmd := <-e.Cmd:
 					log.Printf("echo: %v cmd: %v\n", e.ID, cmd)
-					if (cmd == 0) || (cmd == 2) {
+					// if (cmd == 0) || (cmd == 2) {
+					// if cmd == DISABLE {
+					// 	e.Enabled = false
+					// 	break
+					// }
+					if cmd == EXIT {
+						e.Initialised = false
 						e.Running = false
-						break
+						return
 					}
+					if cmd == STOP {
+						e.Running = false
+						goto loop
+					}
+
 				case msg := <-e.In:
 					// Print the message
 					fmt.Println("echo id:", e.ID, "chan:", e.In, "msg:", msg)

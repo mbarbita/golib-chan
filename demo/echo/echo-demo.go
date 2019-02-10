@@ -22,16 +22,16 @@ func main() {
 
 	r1.Start()
 
-	e1.Start()
-	e1.Cmd <- 1
-	e2.Start()
-	e2.Cmd <- 1
+	e1.Init()
+	e1.Cmd <- ccore.RUN
+	e2.Init()
+	e2.Cmd <- ccore.RUN
 
 	// time.Sleep(5 * time.Second)
 
 	go func() {
 		time.Sleep(2000 * time.Millisecond)
-		e1.Cmd <- 2
+		e1.Cmd <- ccore.STOP
 	}()
 
 	go func() {
