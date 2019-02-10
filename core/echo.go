@@ -52,30 +52,17 @@ func (e *Echo) Init() {
 				e.Unlock()
 				goto loop
 			}
-			// if cmd == 0 {
-			// 	e.Lock()
-			// 	e.Running = false
-			// 	e.Unlock()
-			// 	return
-			// }
 
 			for {
-				// 	if !e.Running {
-				// 		break
-				// 	}
 				select {
 				case cmd := <-e.Cmd:
 					log.Printf("echo: %v cmd: %v\n", e.ID, cmd)
-					// if (cmd == 0) || (cmd == 2) {
-					// if cmd == DISABLE {
-					// 	e.Enabled = false
-					// 	break
-					// }
 					if cmd == EXIT {
 						e.Initialised = false
 						e.Running = false
 						return
 					}
+
 					if cmd == STOP {
 						e.Running = false
 						goto loop

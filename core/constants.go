@@ -1,8 +1,8 @@
 package controller
 
 const (
-	// _ = iota
-	RUN = iota
+	_ = iota
+	RUN
 	STOP
 	EXIT
 )
