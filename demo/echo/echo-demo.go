@@ -53,8 +53,11 @@ func main() {
 		time.Sleep(1000 * time.Millisecond)
 
 		ccore.PrintRouter(r1)
+
 		ccore.PrintComp(e1)
+		fmt.Println()
 		ccore.PrintComp(e2)
+		fmt.Println()
 
 		wch <- true
 

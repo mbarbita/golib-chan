@@ -34,8 +34,8 @@ func PrintFrame(f *Frame) {
 	// fmt.Println()
 }
 
-func NewFrame(id int) Frame {
-	return Frame{
+func NewFrame(id int) *Frame {
+	return &Frame{
 		ID:          id,
 		Initialised: false,
 		Running:     false,

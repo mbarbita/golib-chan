@@ -2,18 +2,19 @@ package controller
 
 import (
 	"fmt"
+	"log"
 )
 
 type Echo struct {
-	Frame
+	*Frame
 }
 
 func (e *Echo) InMsg(inMsg interface{}) {
-	fmt.Println(inMsg)
+	// fmt.Println(inMsg)
+	log.Println("*** frame id:", e.ID, "chan:", e.In, "msg:", inMsg)
 }
 
 func NewEcho(id int) *Echo {
-
 	e := &Echo{
 		Frame: NewFrame(id),
 	}
@@ -23,6 +24,6 @@ func NewEcho(id int) *Echo {
 
 func PrintComp(e *Echo) {
 	fmt.Println("Echo:")
-	PrintFrame(&e.Frame)
+	PrintFrame(e.Frame)
 	// fmt.Println()
 }
