@@ -2,8 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"log"
-	"sync"
 )
 
 type Echo struct {
@@ -11,7 +9,7 @@ type Echo struct {
 	Initialised bool
 	Running     bool
 	Cmd         chan int8
-	sync.Mutex
+	// sync.Mutex
 	In chan interface{}
 }
 
@@ -41,22 +39,18 @@ func (e *Echo) Init() {
 		loop:
 			cmd := <-e.Cmd
 			if cmd == RUN {
-				e.Lock()
 				e.Running = true
-				e.Unlock()
 			}
 
 			if cmd == STOP {
-				e.Lock()
 				e.Running = false
-				e.Unlock()
 				goto loop
 			}
 
 			for {
 				select {
 				case cmd := <-e.Cmd:
-					log.Printf("echo: %v cmd: %v\n", e.ID, cmd)
+					fmt.Printf("echo: %v cmd: %v\n", e.ID, cmd)
 					if cmd == EXIT {
 						e.Initialised = false
 						e.Running = false
@@ -79,7 +73,5 @@ func (e *Echo) Init() {
 
 // Stop ...
 func (e *Echo) Stop() {
-	e.Lock()
-	e.Running = false
-	e.Unlock()
+	e.Cmd <- STOP
 }

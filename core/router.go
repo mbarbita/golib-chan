@@ -8,8 +8,10 @@ import (
 
 // Router ...
 type Router struct {
-	ID      int //address
-	Running bool
+	ID          int
+	Initialised bool
+	Running     bool
+	Cmd         chan int8
 	sync.Mutex
 	In     chan interface{}
 	OutMap map[int]chan interface{} // out id = chan
