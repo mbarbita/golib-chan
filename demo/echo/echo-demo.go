@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	ccore "github.com/mbarbita/golib-controller/core"
@@ -10,22 +11,28 @@ import (
 func main() {
 	wch := make(chan bool)
 
-	r1 := ccore.NewRouter(0, make(chan interface{}))
-	r1.ModOut(0, make(chan interface{}, 1))
-	r1.ModOut(1, make(chan interface{}, 1))
+	e1 := ccore.NewEcho(0)
+	e2 := ccore.NewEcho(1)
 
-	e1 := ccore.NewEcho(0, make(chan int8), r1.OutMap[0])
-	e2 := ccore.NewEcho(1, make(chan int8), r1.OutMap[1])
+	r1 := ccore.NewRouter(0, make(chan int8), make(chan interface{}))
+	r1.ModOut(0, e1.In)
+	r1.ModOut(1, e2.In)
+
+	// e1 := ccore.NewEcho(0, make(chan int8), r1.OutMap[0])
+	// e2 := ccore.NewEcho(1, make(chan int8), r1.OutMap[1])
 	ccore.PrintRouter(r1)
+	fmt.Println()
 	ccore.PrintComp(e1)
+	fmt.Println()
 	ccore.PrintComp(e2)
+	fmt.Println()
 
 	r1.Start()
 
 	e1.Init()
-	e1.Cmd <- ccore.RUN
+	e1.Run()
 	e2.Init()
-	e2.Cmd <- ccore.RUN
+	e2.Run()
 
 	// time.Sleep(5 * time.Second)
 
@@ -36,7 +43,7 @@ func main() {
 
 	go func() {
 		for i := 0; i < 5; i++ {
-			fmt.Println("sending data:")
+			log.Println("sending data:")
 			r1.In <- 123
 			time.Sleep(1000 * time.Millisecond)
 

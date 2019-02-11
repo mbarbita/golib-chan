@@ -3,34 +3,30 @@ package controller
 import (
 	"fmt"
 	"log"
-	"sync"
 )
 
 // Router ...
 type Router struct {
-	ID          int
-	Initialised bool
-	Running     bool
-	Cmd         chan int8
-	sync.Mutex
-	In     chan interface{}
+	Frame
 	OutMap map[int]chan interface{} // out id = chan
 }
 
 // NewRouter ...
-func NewRouter(id int, inCh chan interface{}) *Router {
+func NewRouter(id int, cmd chan int8, inCh chan interface{}) *Router {
 	return &Router{
-		ID:      id,                             //id
-		Running: false,                          // running
-		In:      inCh,                           //in
-		OutMap:  make(map[int]chan interface{}), //out
+		Frame: Frame{
+			ID:          id, //id
+			Initialised: false,
+			Running:     false, // running
+			Cmd:         cmd,
+			In:          inCh, //in
+		},
+		OutMap: make(map[int]chan interface{}), //out
 	}
 }
 
 // PrintRouter ...
 func PrintRouter(r *Router) {
-	fmt.Println("Router:")
-	// fmt.Printf("%-10v:\n", "Router")
 	fmt.Println("Router id:", r.ID)
 	fmt.Println("running  :", r.Running)
 	fmt.Println("in chan  :", r.In)
@@ -96,6 +92,52 @@ func (r *Router) Start() {
 		log.Printf("router %v stopped.\n", r.ID)
 	}()
 }
+
+// func (e *Echo) Init() {
+// 	go func() {
+// 		e.Lock()
+// 		e.Initialised = true
+// 		e.Unlock()
+// 		for {
+// 		loop:
+// 			cmd := <-e.Cmd
+// 			if cmd == RUN {
+// 				e.Running = true
+// 				log.Printf("echo id: %v cmd: RUN aka %v\n", e.ID, cmd)
+// 			}
+//
+// 			if cmd == STOP {
+// 				e.Running = false
+// 				log.Printf("echo id: %v cmd: STOP aka %v\n", e.ID, cmd)
+// 				goto loop
+// 			}
+//
+// 			for {
+// 				select {
+// 				case cmd := <-e.Cmd:
+// 					// log.Printf("echo: %v cmd: %v\n", e.ID, cmd)
+// 					if cmd == EXIT {
+// 						e.Initialised = false
+// 						e.Running = false
+// 						log.Printf("echo id: %v cmd: EXIT aka %v\n", e.ID, cmd)
+// 						return
+// 					}
+//
+// 					if cmd == STOP {
+// 						e.Running = false
+// 						log.Printf("echo id: %v cmd: STOP aka %v\n", e.ID, cmd)
+// 						goto loop
+// 					}
+//
+// 				case msg := <-e.In:
+// 					// Print the message
+// 					log.Println("echo id:", e.ID, "chan:", e.In, "msg:", msg)
+// 				}
+// 			}
+// 		}
+// 	}()
+// }
+//
 
 // Stop ...
 func (r *Router) Stop() {
