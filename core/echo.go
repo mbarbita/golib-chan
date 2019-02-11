@@ -13,9 +13,12 @@ func (e *Echo) InMsg(inMsg interface{}) {
 }
 
 func NewEcho(id int) *Echo {
-	return &Echo{
+
+	e := &Echo{
 		Frame: NewFrame(id),
 	}
+	e.AddFn(0, e.InMsg)
+	return e
 }
 
 func PrintComp(e *Echo) {

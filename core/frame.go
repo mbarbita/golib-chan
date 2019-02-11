@@ -6,9 +6,9 @@ import (
 	"sync"
 )
 
-type FrameMsg interface {
-	InMsg(msg interface{})
-}
+// type FrameMsg interface {
+// 	InMsg(msg interface{})
+// }
 
 type Frame struct {
 	ID          int
@@ -16,12 +16,13 @@ type Frame struct {
 	Running     bool
 	Cmd         chan int8
 	sync.Mutex
-	In chan interface{}
+	In    chan interface{}
+	FnMap map[int8]interface{}
 }
 
-func (f *Frame) InMsg(msg interface{}) {
-	log.Println("frame id:", f.ID, "chan:", f.In, "msg:", msg)
-}
+// func (f *Frame) InMsg(msg interface{}) {
+// 	log.Println("frame id:", f.ID, "chan:", f.In, "msg:", msg)
+// }
 
 func PrintFrame(f *Frame) {
 	fmt.Println("frame id:", f.ID)
@@ -29,6 +30,7 @@ func PrintFrame(f *Frame) {
 	fmt.Println("running:", f.Running)
 	fmt.Println("cmd chan:", f.Cmd)
 	fmt.Println("in chan:", f.In)
+	fmt.Println("fn map:", f.FnMap)
 	// fmt.Println()
 }
 
@@ -39,7 +41,14 @@ func NewFrame(id int) Frame {
 		Running:     false,
 		Cmd:         make(chan int8),
 		In:          make(chan interface{}),
+		FnMap:       make(map[int8]interface{}),
 	}
+}
+
+func (f *Frame) AddFn(id int8, fn interface{}) {
+	f.Lock()
+	f.FnMap[id] = fn
+	f.Unlock()
 }
 
 func (f *Frame) Run() {
@@ -89,7 +98,8 @@ func (f *Frame) Init() {
 
 				case msg := <-f.In:
 					// log.Println("frame id:", f.ID, "chan:", f.In, "msg:", msg)
-					f.InMsg(msg)
+					// f.InMsg(msg)
+					f.FnMap[0].(func(interface{}))(msg)
 				}
 			}
 		}
