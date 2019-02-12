@@ -6,10 +6,6 @@ import (
 	"sync"
 )
 
-// type FrameMsg interface {
-// 	InMsg(msg interface{})
-// }
-
 type Frame struct {
 	ID          int
 	Initialised bool
@@ -17,17 +13,8 @@ type Frame struct {
 	Cmd         chan int8
 	sync.Mutex
 	In chan interface{}
-	// FnMap map[int8]interface{}
 	Fn interface{}
 }
-
-// type Fnx struct {
-// 	Fn interface{}
-// }
-
-// func (f *Frame) InMsg(msg interface{}) {
-// 	log.Println("frame id:", f.ID, "chan:", f.In, "msg:", msg)
-// }
 
 func PrintFrame(f *Frame) {
 	fmt.Println("frame id:", f.ID)
@@ -35,9 +22,7 @@ func PrintFrame(f *Frame) {
 	fmt.Println("running:", f.Running)
 	fmt.Println("cmd chan:", f.Cmd)
 	fmt.Println("in chan:", f.In)
-	// fmt.Println("fn map:", f.FnMap)
 	fmt.Println("fn:", f.Fn)
-	// fmt.Println()
 }
 
 func NewFrame(id int) *Frame {
@@ -47,13 +32,11 @@ func NewFrame(id int) *Frame {
 		Running:     false,
 		Cmd:         make(chan int8),
 		In:          make(chan interface{}),
-		// FnMap:       make(map[int8]interface{}),
 	}
 }
 
-func (f *Frame) AddFn(id int8, fn interface{}) {
+func (f *Frame) SetFn(fn interface{}) {
 	f.Lock()
-	// f.FnMap[id] = fn
 	f.Fn = fn
 	f.Unlock()
 }
@@ -70,6 +53,7 @@ func (f *Frame) Stop() {
 func (f *Frame) Init() {
 	go func() {
 		f.Lock()
+		fcast := f.Fn.(func(interface{}))
 		f.Initialised = true
 		f.Unlock()
 		for {
@@ -89,25 +73,27 @@ func (f *Frame) Init() {
 			for {
 				select {
 				case cmd := <-f.Cmd:
-					// log.Printf("echo: %v cmd: %v\n", f.ID, cmd)
 					switch {
 					case cmd == EXIT:
+						f.Lock()
 						f.Initialised = false
 						f.Running = false
+						f.Unlock()
 						log.Printf("frame id: %v cmd: EXIT aka %v\n", f.ID, cmd)
 						return
 
 					case cmd == STOP:
+						f.Lock()
 						f.Running = false
+						f.Unlock()
 						log.Printf("frame id: %v cmd: STOP aka %v\n", f.ID, cmd)
 						goto loop
 					}
 
 				case msg := <-f.In:
-					// log.Println("frame id:", f.ID, "chan:", f.In, "msg:", msg)
-					// f.InMsg(msg)
-					// f.FnMap[0].(func(interface{}))(msg)
-					f.Fn.(func(interface{}))(msg)
+					// f.Fn.(func(interface{}))(msg)
+					// fcast := f.Fn.(func(interface{}))
+					fcast(msg)
 				}
 			}
 		}
