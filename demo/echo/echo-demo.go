@@ -8,23 +8,29 @@ import (
 )
 
 func main() {
-	frameID := 0
+	// frameID := 0
 	wch := make(chan bool)
 	echoMap := make(map[int]*ccore.Echo)
-	echoMap[frameID] = ccore.NewEcho(frameID)
-	frameID++
-	echoMap[frameID] = ccore.NewEcho(frameID)
-	frameID++
 
-	r1 := ccore.NewRouter(frameID)
+	r1 := ccore.NewRouter(0)
+	for frameID := 1; frameID <= 1000; frameID++ {
+		echoMap[frameID] = ccore.NewEcho(frameID)
+		// frameID++
+		// echoMap[frameID] = ccore.NewEcho(frameID)
+		// frameID++
+	}
+
 	// frameID++
 	for k, v := range echoMap {
 		r1.ModOut(k, v.In)
 	}
 
-	ccore.PrintRouter(r1)
-	for k := range echoMap {
-		ccore.PrintEcho(echoMap[k])
+	// print stopped state
+	if false {
+		ccore.PrintRouter(r1)
+		for k := range echoMap {
+			ccore.PrintEcho(echoMap[k])
+		}
 	}
 
 	r1.Init()
@@ -54,10 +60,11 @@ func main() {
 		}
 		time.Sleep(1000 * time.Millisecond)
 
-		ccore.PrintRouter(r1)
-		for k := range echoMap {
-			ccore.PrintEcho(echoMap[k])
-
+		if false {
+			ccore.PrintRouter(r1)
+			for k := range echoMap {
+				ccore.PrintEcho(echoMap[k])
+			}
 		}
 
 		wch <- true

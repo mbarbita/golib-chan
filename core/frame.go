@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"time"
 )
 
 type Frame struct {
@@ -89,9 +90,11 @@ func (f *Frame) Init() {
 						log.Printf("frame id: %v cmd: %v aka STOP\n", f.ID, cmd)
 						goto loop
 					}
-
 				case msg := <-f.In:
+					start := time.Now()
 					fcast(msg)
+					elapsed := time.Since(start)
+					log.Println("frame id:", f.ID, "fn call duration:", elapsed)
 				}
 			}
 		}
