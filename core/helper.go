@@ -19,8 +19,6 @@ func NewDur() *Dur {
 
 func (d *Dur) Run() {
 	go func() {
-		// d.In = make(chan time.Duration)
-		// DurSlice = make([]time.Duration)
 		for {
 			d.DurSlice = append(d.DurSlice, <-d.In)
 		}
