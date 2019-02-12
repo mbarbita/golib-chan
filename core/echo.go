@@ -10,7 +10,6 @@ type Echo struct {
 }
 
 func (e *Echo) InMsg(inMsg interface{}) {
-	// fmt.Println(inMsg)
 	log.Println("*** echo id:", e.ID, "chan:", e.In, "msg:", inMsg)
 }
 

@@ -91,8 +91,6 @@ func (f *Frame) Init() {
 					}
 
 				case msg := <-f.In:
-					// f.Fn.(func(interface{}))(msg)
-					// fcast := f.Fn.(func(interface{}))
 					fcast(msg)
 				}
 			}
