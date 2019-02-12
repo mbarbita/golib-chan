@@ -1,42 +1,57 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"time"
 
 	ccore "github.com/mbarbita/golib-controller/core"
 )
 
 func main() {
+	// frameID := 0
 	wch := make(chan bool)
+	echoMap := make(map[int]*ccore.Echo)
 
-	r1 := ccore.NewRouter(0, make(chan interface{}))
-	r1.ModOut(0, make(chan interface{}, 1))
-	r1.ModOut(1, make(chan interface{}, 1))
+	r1 := ccore.NewRouter(0)
+	for frameID := 1; frameID <= 1000; frameID++ {
+		echoMap[frameID] = ccore.NewEcho(frameID)
+		// frameID++
+		// echoMap[frameID] = ccore.NewEcho(frameID)
+		// frameID++
+	}
 
-	e1 := ccore.NewEcho(0, make(chan int8), r1.OutMap[0])
-	e2 := ccore.NewEcho(1, make(chan int8), r1.OutMap[1])
-	ccore.PrintRouter(r1)
-	ccore.PrintComp(e1)
-	ccore.PrintComp(e2)
+	// frameID++
+	for k, v := range echoMap {
+		r1.ModOut(k, v.In)
+	}
 
-	r1.Start()
+	// print stopped state
+	if false {
+		ccore.PrintRouter(r1)
+		for k := range echoMap {
+			ccore.PrintEcho(echoMap[k])
+		}
+	}
 
-	e1.Init()
-	e1.Cmd <- ccore.RUN
-	e2.Init()
-	e2.Cmd <- ccore.RUN
+	r1.Init()
+	r1.Run()
 
-	// time.Sleep(5 * time.Second)
+	for _, v := range echoMap {
+
+		v.Init()
+		v.Run()
+	}
+
+	time.Sleep(time.Second)
 
 	go func() {
 		time.Sleep(2000 * time.Millisecond)
-		e1.Cmd <- ccore.STOP
+		echoMap[1].Stop()
 	}()
 
 	go func() {
 		for i := 0; i < 5; i++ {
-			fmt.Println("sending data:")
+			log.Println("sending data:")
 			r1.In <- 123
 			time.Sleep(1000 * time.Millisecond)
 
@@ -45,9 +60,12 @@ func main() {
 		}
 		time.Sleep(1000 * time.Millisecond)
 
-		ccore.PrintRouter(r1)
-		ccore.PrintComp(e1)
-		ccore.PrintComp(e2)
+		if false {
+			ccore.PrintRouter(r1)
+			for k := range echoMap {
+				ccore.PrintEcho(echoMap[k])
+			}
+		}
 
 		wch <- true
 
