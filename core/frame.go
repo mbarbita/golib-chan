@@ -13,17 +13,18 @@ type Frame struct {
 	Running     bool
 	Cmd         chan int8
 	sync.Mutex
-	In chan interface{}
-	Fn interface{}
+	In    chan interface{}
+	Fn    interface{}
+	DurCh chan time.Duration
 }
 
 func PrintFrame(f *Frame) {
-	fmt.Println("frame id:", f.ID)
-	fmt.Println("initialised:", f.Initialised)
-	fmt.Println("running:", f.Running)
-	fmt.Println("cmd chan:", f.Cmd)
-	fmt.Println("in chan:", f.In)
-	fmt.Println("fn:", f.Fn)
+	fmt.Printf("frame id: %v type: %T\n", f.ID, f.ID)
+	fmt.Printf("initialised: %v type: %T\n", f.Initialised, f.Initialised)
+	fmt.Printf("running: %v type: %T\n", f.Running, f.Running)
+	fmt.Printf("cmd chan: %v type: %T\n", f.Cmd, f.Cmd)
+	fmt.Printf("in chan: %v type: %T\n", f.In, f.In)
+	fmt.Printf("fn: %v type: %T\n", f.Fn, f.Fn)
 }
 
 func NewFrame(id int) *Frame {
@@ -93,8 +94,8 @@ func (f *Frame) Init() {
 				case msg := <-f.In:
 					start := time.Now()
 					fcast(msg)
-					elapsed := time.Since(start)
-					log.Println("frame id:", f.ID, "fn call duration:", elapsed)
+					f.DurCh <- time.Since(start)
+					// log.Println("frame id:", f.ID, "fn call duration:", elapsed)
 				}
 			}
 		}

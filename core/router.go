@@ -40,7 +40,7 @@ func PrintRouter(r *Router) {
 	fmt.Println("Router:")
 	PrintFrame(r.Frame)
 	for k, v := range r.OutMap {
-		fmt.Printf("out id : %v, chan: %v\n", k, v)
+		fmt.Printf("out id : %v, chan: %v type: %T\n", k, v, v)
 	}
 	fmt.Println()
 }
