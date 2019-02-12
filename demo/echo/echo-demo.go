@@ -9,36 +9,43 @@ import (
 
 func main() {
 	wch := make(chan bool)
-
-	e1 := ccore.NewEcho(0)
-	e2 := ccore.NewEcho(1)
+	echoMap := make(map[int]*ccore.Echo)
+	echoMap[1] = ccore.NewEcho(1)
+	echoMap[2] = ccore.NewEcho(2)
+	// e1 := ccore.NewEcho(0)
+	// e2 := ccore.NewEcho(1)
 
 	r1 := ccore.NewRouter(0)
-	r1.ModOut(0, e1.In)
-	r1.ModOut(1, e2.In)
+	for k, v := range echoMap {
+		r1.ModOut(k, v.In)
+	}
+	// r1.ModOut(0, e1.In)
+	// r1.ModOut(1, e2.In)
 
-	// e1 := ccore.NewEcho(0, make(chan int8), r1.OutMap[0])
-	// e2 := ccore.NewEcho(1, make(chan int8), r1.OutMap[1])
 	ccore.PrintRouter(r1)
-	// fmt.Println()
-	ccore.PrintEcho(e1)
-	// fmt.Println()
-	ccore.PrintEcho(e2)
-	// fmt.Println()
+	for k, _ := range echoMap {
+		ccore.PrintEcho(echoMap[k])
+		// ccore.PrintEcho(echoMap[1])
+	}
 
 	r1.Init()
 	r1.Run()
 
-	e1.Init()
-	e1.Run()
-	e2.Init()
-	e2.Run()
+	for _, v := range echoMap {
+		// r1.ModOut(k, v.In)
+		v.Init()
+		v.Run()
+	}
+	// e1.Init()
+	// e1.Run()
+	// e2.Init()
+	// e2.Run()
 
 	// time.Sleep(5 * time.Second)
 
 	go func() {
 		time.Sleep(2000 * time.Millisecond)
-		e1.Stop()
+		echoMap[1].Stop()
 	}()
 
 	go func() {
@@ -53,11 +60,18 @@ func main() {
 		time.Sleep(1000 * time.Millisecond)
 
 		ccore.PrintRouter(r1)
+		for k, _ := range echoMap {
+			ccore.PrintEcho(echoMap[k])
+			// ccore.PrintEcho(echoMap[1])
+		}
 
-		ccore.PrintEcho(e1)
-		// fmt.Println()
-		ccore.PrintEcho(e2)
-		// fmt.Println()
+		// ccore.PrintRouter(r1)
+		// ccore.PrintEcho(echoMap[0])
+		// ccore.PrintEcho(echoMap[1])
+
+		// ccore.PrintRouter(r1)
+		// ccore.PrintEcho(e1)
+		// ccore.PrintEcho(e2)
 
 		wch <- true
 
