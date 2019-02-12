@@ -23,7 +23,6 @@ func PrintFrame(f *Frame) {
 	fmt.Println("cmd chan:", f.Cmd)
 	fmt.Println("in chan:", f.In)
 	fmt.Println("fn:", f.Fn)
-	// fmt.Println()
 }
 
 func NewFrame(id int) *Frame {
