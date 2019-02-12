@@ -11,7 +11,7 @@ type Echo struct {
 
 func (e *Echo) InMsg(inMsg interface{}) {
 	// fmt.Println(inMsg)
-	log.Println("*** frame id:", e.ID, "chan:", e.In, "msg:", inMsg)
+	log.Println("*** echo id:", e.ID, "chan:", e.In, "msg:", inMsg)
 }
 
 func NewEcho(id int) *Echo {
@@ -22,8 +22,8 @@ func NewEcho(id int) *Echo {
 	return e
 }
 
-func PrintComp(e *Echo) {
+func PrintEcho(e *Echo) {
 	fmt.Println("Echo:")
 	PrintFrame(e.Frame)
-	// fmt.Println()
+	fmt.Println()
 }

@@ -7,29 +7,38 @@ import (
 
 // Router ...
 type Router struct {
-	Frame
+	*Frame
 	OutMap map[int]chan interface{} // out id = chan
 }
 
+func (r *Router) InMsg(inMsg interface{}) {
+	// fmt.Println(inMsg)
+	// log.Println("*** frame id:", r.ID, "chan:", r.In, "msg:", inMsg)
+
+	for k, v := range r.OutMap {
+		select {
+		case v <- inMsg:
+		default:
+			log.Printf("router %v could not send to chan id: %v chan:%v\n",
+				r.ID, k, v)
+		}
+	}
+}
+
 // NewRouter ...
-func NewRouter(id int, cmd chan int8, inCh chan interface{}) *Router {
-	return &Router{
-		Frame: Frame{
-			ID:          id, //id
-			Initialised: false,
-			Running:     false, // running
-			Cmd:         cmd,
-			In:          inCh, //in
-		},
+func NewRouter(id int) *Router {
+	r := &Router{
+		Frame:  NewFrame(id),
 		OutMap: make(map[int]chan interface{}), //out
 	}
+	r.SetFn(r.InMsg)
+	return r
 }
 
 // PrintRouter ...
 func PrintRouter(r *Router) {
-	fmt.Println("Router id:", r.ID)
-	fmt.Println("running  :", r.Running)
-	fmt.Println("in chan  :", r.In)
+	fmt.Println("Echo:")
+	PrintFrame(r.Frame)
 	for k, v := range r.OutMap {
 		fmt.Printf("out id : %v, chan: %v\n", k, v)
 	}
@@ -39,59 +48,59 @@ func PrintRouter(r *Router) {
 // ModifyOut ...
 func (r *Router) ModOut(outID int, ch chan interface{}) {
 	r.Lock()
-	defer r.Unlock()
 	r.OutMap[outID] = ch
+	r.Unlock()
 }
 
-func (r *Router) DelOut(outID int, ch chan interface{}) {
-	r.Lock()
-	defer r.Unlock()
-	delete(r.OutMap, outID)
-	close(ch)
-}
+// func (r *Router) DelOut(outID int, ch chan interface{}) {
+// 	r.Lock()
+// 	delete(r.OutMap, outID)
+// 	close(ch) //???
+// 	r.Unlock()
+// }
 
 // ModifyIn ...
-func (r *Router) ModIn(ch chan interface{}) {
-	r.Lock()
-	defer r.Unlock()
-	r.In = ch
-	close(r.In)
-}
+// func (r *Router) ModIn(ch chan interface{}) {
+// 	r.Lock()
+// 	defer r.Unlock()
+// 	r.In = ch
+// 	close(r.In)
+// }
 
 // ChangeID ...
-func (r *Router) ModID(id int) {
-	r.Lock()
-	defer r.Unlock()
-	r.ID = id
-
-}
+// func (r *Router) ModID(id int) {
+// 	r.Lock()
+// 	defer r.Unlock()
+// 	r.ID = id
+//
+// }
 
 // Start ...
-func (r *Router) Start() {
-	go func() {
-		r.Lock()
-		r.Running = true
-		r.Unlock()
-		for {
-			if !r.Running {
-				// return
-				break
-			}
-			msg := <-r.In
-			// loop trough client map and send the message
-			for k, v := range r.OutMap {
-				select {
-				case v <- msg:
-				default:
-					log.Printf("router %v could not send to chan id: %v chan:%v\n",
-						r.ID, k, v)
-				}
-			}
-		}
-		// break
-		log.Printf("router %v stopped.\n", r.ID)
-	}()
-}
+// func (r *Router) Start() {
+// 	go func() {
+// 		r.Lock()
+// 		r.Running = true
+// 		r.Unlock()
+// 		for {
+// 			if !r.Running {
+// 				// return
+// 				break
+// 			}
+// 			msg := <-r.In
+// 			// loop trough client map and send the message
+// 			for k, v := range r.OutMap {
+// 				select {
+// 				case v <- msg:
+// 				default:
+// 					log.Printf("router %v could not send to chan id: %v chan:%v\n",
+// 						r.ID, k, v)
+// 				}
+// 			}
+// 		}
+// 		// break
+// 		log.Printf("router %v stopped.\n", r.ID)
+// 	}()
+// }
 
 // func (e *Echo) Init() {
 // 	go func() {
@@ -140,8 +149,8 @@ func (r *Router) Start() {
 //
 
 // Stop ...
-func (r *Router) Stop() {
-	r.Lock()
-	r.Running = false
-	r.Unlock()
-}
+// func (r *Router) Stop() {
+// 	r.Lock()
+// 	r.Running = false
+// 	r.Unlock()
+// }

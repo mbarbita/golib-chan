@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -14,20 +13,21 @@ func main() {
 	e1 := ccore.NewEcho(0)
 	e2 := ccore.NewEcho(1)
 
-	r1 := ccore.NewRouter(0, make(chan int8), make(chan interface{}))
+	r1 := ccore.NewRouter(0)
 	r1.ModOut(0, e1.In)
 	r1.ModOut(1, e2.In)
 
 	// e1 := ccore.NewEcho(0, make(chan int8), r1.OutMap[0])
 	// e2 := ccore.NewEcho(1, make(chan int8), r1.OutMap[1])
 	ccore.PrintRouter(r1)
-	fmt.Println()
-	ccore.PrintComp(e1)
-	fmt.Println()
-	ccore.PrintComp(e2)
-	fmt.Println()
+	// fmt.Println()
+	ccore.PrintEcho(e1)
+	// fmt.Println()
+	ccore.PrintEcho(e2)
+	// fmt.Println()
 
-	r1.Start()
+	r1.Init()
+	r1.Run()
 
 	e1.Init()
 	e1.Run()
@@ -38,7 +38,7 @@ func main() {
 
 	go func() {
 		time.Sleep(2000 * time.Millisecond)
-		e1.Cmd <- ccore.STOP
+		e1.Stop()
 	}()
 
 	go func() {
@@ -54,10 +54,10 @@ func main() {
 
 		ccore.PrintRouter(r1)
 
-		ccore.PrintComp(e1)
-		fmt.Println()
-		ccore.PrintComp(e2)
-		fmt.Println()
+		ccore.PrintEcho(e1)
+		// fmt.Println()
+		ccore.PrintEcho(e2)
+		// fmt.Println()
 
 		wch <- true
 

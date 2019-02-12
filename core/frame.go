@@ -23,6 +23,7 @@ func PrintFrame(f *Frame) {
 	fmt.Println("cmd chan:", f.Cmd)
 	fmt.Println("in chan:", f.In)
 	fmt.Println("fn:", f.Fn)
+	// fmt.Println()
 }
 
 func NewFrame(id int) *Frame {
@@ -62,11 +63,11 @@ func (f *Frame) Init() {
 			switch {
 			case cmd == RUN:
 				f.Running = true
-				log.Printf("frame id: %v cmd: RUN aka %v\n", f.ID, cmd)
+				log.Printf("frame id: %v cmd: %v aka RUN\n", f.ID, cmd)
 
 			case cmd == STOP:
 				f.Running = false
-				log.Printf("frame id: %v cmd: STOP aka %v\n", f.ID, cmd)
+				log.Printf("frame id: %v cmd: %v aka STOP\n", f.ID, cmd)
 				goto loop
 			}
 
@@ -79,14 +80,14 @@ func (f *Frame) Init() {
 						f.Initialised = false
 						f.Running = false
 						f.Unlock()
-						log.Printf("frame id: %v cmd: EXIT aka %v\n", f.ID, cmd)
+						log.Printf("frame id: %v cmd: %v aka EXIT\n", f.ID, cmd)
 						return
 
 					case cmd == STOP:
 						f.Lock()
 						f.Running = false
 						f.Unlock()
-						log.Printf("frame id: %v cmd: STOP aka %v\n", f.ID, cmd)
+						log.Printf("frame id: %v cmd: %v aka STOP\n", f.ID, cmd)
 						goto loop
 					}
 
