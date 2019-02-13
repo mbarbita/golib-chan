@@ -55,7 +55,7 @@ func (f *Frame) Stop() {
 func (f *Frame) Init() {
 	go func() {
 		f.Lock()
-		fcast := f.Fn.(func(interface{}))
+		// fcast := f.Fn.(func(interface{}))
 		f.Initialised = true
 		f.Unlock()
 		for {
