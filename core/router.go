@@ -31,7 +31,8 @@ func NewRouter(id int) *Router {
 		Frame:  NewFrame(id),
 		OutMap: make(map[int]chan interface{}), //out
 	}
-	r.SetFn(r.InMsg)
+	// r.SetFn(r.InMsg)
+	r.Fn = r.InMsg
 	return r
 }
 

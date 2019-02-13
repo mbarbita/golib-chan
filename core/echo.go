@@ -17,7 +17,8 @@ func NewEcho(id int) *Echo {
 	e := &Echo{
 		Frame: NewFrame(id),
 	}
-	e.SetFn(e.InMsg)
+	// e.SetFn(e.InMsg)
+	e.Fn = e.InMsg
 	return e
 }
 

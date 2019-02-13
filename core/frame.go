@@ -37,11 +37,11 @@ func NewFrame(id int) *Frame {
 	}
 }
 
-func (f *Frame) SetFn(fn interface{}) {
-	f.Lock()
-	f.Fn = fn
-	f.Unlock()
-}
+// func (f *Frame) SetFn(fn interface{}) {
+// 	f.Lock()
+// 	f.Fn = fn
+// 	f.Unlock()
+// }
 
 func (f *Frame) Run() {
 	f.Cmd <- RUN
@@ -61,12 +61,12 @@ func (f *Frame) Init() {
 		for {
 		loop:
 			cmd := <-f.Cmd
-			switch {
-			case cmd == RUN:
+			switch cmd {
+			case RUN:
 				f.Running = true
 				log.Printf("frame id: %v cmd: %v aka RUN\n", f.ID, cmd)
 
-			case cmd == STOP:
+			case STOP:
 				f.Running = false
 				log.Printf("frame id: %v cmd: %v aka STOP\n", f.ID, cmd)
 				goto loop
@@ -75,8 +75,8 @@ func (f *Frame) Init() {
 			for {
 				select {
 				case cmd := <-f.Cmd:
-					switch {
-					case cmd == EXIT:
+					switch cmd {
+					case EXIT:
 						f.Lock()
 						f.Initialised = false
 						f.Running = false
@@ -84,7 +84,7 @@ func (f *Frame) Init() {
 						log.Printf("frame id: %v cmd: %v aka EXIT\n", f.ID, cmd)
 						return
 
-					case cmd == STOP:
+					case STOP:
 						f.Lock()
 						f.Running = false
 						f.Unlock()
@@ -94,7 +94,10 @@ func (f *Frame) Init() {
 				case msg := <-f.In:
 					start := time.Now()
 					fcast(msg)
-					f.DurCh <- time.Since(start)
+					select {
+					case f.DurCh <- time.Since(start):
+					default:
+					}
 					// log.Println("frame id:", f.ID, "fn call duration:", elapsed)
 				}
 			}
