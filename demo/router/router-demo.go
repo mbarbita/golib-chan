@@ -9,7 +9,7 @@ import (
 func main() {
 	// inCh := make(chan interface{})
 	// r1 := ccore.NewRouter(0, inCh)
-	r1 := ccore.NewRouter(0, make(chan interface{}))
+	r1 := ccore.NewRouter(0)
 	// r1.OutMap[0] = make(chan interface{})
 	r1.ModOut(0, make(chan interface{}))
 	// r1.OutMap[1] = make(chan interface{})
