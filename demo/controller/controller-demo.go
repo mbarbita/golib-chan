@@ -12,7 +12,7 @@ func main() {
 	c1.AddLoop(0, ccore.NewLoop())
 	c1.AddLoop(1, ccore.NewLoop())
 
-	c1.LoopMap[0].AddComp(0, ccore.NewRouter(0, make(chan interface{})))
+	c1.LoopMap[0].AddComp(0, ccore.NewRouter(0))
 
 	fmt.Println(c1)
 	// fmt.Println(c1.LoopMap[0].CompMap[0])
